@@ -3,8 +3,9 @@ using System.Collections;
 
 namespace TBT.GemsAndCombos {
 
-    public class BoardManager : MonoBehaviour {
-
+    public class BoardManager : MonoBehaviour 
+    {
+        //드랍 위치값 오브젝트 스크립트 저장
         private struct Gem {
             public int color;
             public GameObject gemObject;
@@ -31,6 +32,7 @@ namespace TBT.GemsAndCombos {
 
         private void Start () 
         {
+            //드랍 생성
             InitBoard();
         }
 
@@ -74,13 +76,17 @@ namespace TBT.GemsAndCombos {
             SkyfallGems();
         }
 
+        //드랍생성
         private void SpawnGem (int x, int y, int drop) 
         {
             //위에서 떨어지는 연출을 위해 y값은 5를 더해서 생성
-            GameObject gem = (GameObject)Instantiate(Resources.Load("Gem"), new Vector2(x, y + 5), Quaternion.identity);
+            GameObject gem = Instantiate(Resources.Load("Gem") as GameObject, new Vector2(x, y + 5), Quaternion.identity);
 
+            //중복생성 방지
             if (board[x, y].gemObject != null)
-                DestroyObject(board[x, y].gemObject);
+            {
+                Destroy(board[x, y].gemObject);
+            }
 
             board[x, y] = new Gem 
             {
@@ -123,6 +129,7 @@ namespace TBT.GemsAndCombos {
             board[x, y].color = randomColor;
         }
 
+        
         private void SkyfallGems () 
         {
             for (int y = 0; y < 5; y++)
@@ -142,9 +149,10 @@ namespace TBT.GemsAndCombos {
         public int clickX;
         public int clickY;
 
+        //마우스 클릭으로 드랍 들기
         private void CheckGemClick () 
         {
-            //RoundToint 값을 반올림해 int로 반환
+            //RoundToint 값을 반올림해 int로 대입
             clickX = Mathf.RoundToInt(mousePos.x);
             clickY = Mathf.RoundToInt(mousePos.y);
 
@@ -157,8 +165,10 @@ namespace TBT.GemsAndCombos {
             heldGemX = clickX;
             heldGemY = clickY;
 
+            //들고있는 드랍을 놨을때 매치될곳의 위치에 드랍의 클론을 만들어줌
             CreateNewGemClone(clickX, clickY);
 
+            //클론 드랍의 투명도 조절
             Material gemMat = board[clickX, clickY].gemObject.transform.GetChild(0).GetComponent<MeshRenderer>().material;
             Color32 gemCol = gemMat.color;
             gemCol.a = 60;
@@ -167,6 +177,7 @@ namespace TBT.GemsAndCombos {
             gemClone.gemObject.transform.GetChild(0).GetComponent<MeshRenderer>().material.color = gemCol;
         }
 
+        //드랍 옮겨서 위치 바꾸기
         private void CheckGemSwap () {
             int mouseX = Mathf.RoundToInt(mousePos.x);
             int mouseY = Mathf.RoundToInt(mousePos.y);
@@ -232,19 +243,21 @@ namespace TBT.GemsAndCombos {
                 if (gemClone.gemObject.transform.parent == gemSwapper.transform)
                     gemClone.gemObject.transform.parent = null;
 
-            DestroyObject(gemSwapper);
+            Destroy(gemSwapper);
         }
 
         private void DropGem () {
             board[heldGemX, heldGemY].GM.mouseGem = false;
             board[heldGemX, heldGemY].gemObject.transform.position = new Vector2(heldGemX, heldGemY);
             if (gemClone.gemObject != null)
-                DestroyObject(gemClone.gemObject);
+                Destroy(gemClone.gemObject);
         }
 
+        //드랍 클론 생성
         private void CreateNewGemClone (int cloneX, int cloneY) {
-            GameObject gem = (GameObject)Instantiate(Resources.Load("Gem"), new Vector2(cloneX, cloneY), Quaternion.identity);
-            gemClone = new Gem {
+            GameObject gem = Instantiate(Resources.Load("Gem") as GameObject, new Vector2(cloneX, cloneY), Quaternion.identity);
+            gemClone = new Gem 
+            {
                 color = board[cloneX, cloneY].color,
                 gemObject = gem,
                 GM = gem.GetComponent<GemHandler>()

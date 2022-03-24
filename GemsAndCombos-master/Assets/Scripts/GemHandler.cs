@@ -18,10 +18,14 @@ namespace TBT.GemsAndCombos {
         {
             if (!mouseGem) return;
 
+            //드랍이 마우스 따라가게
             transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition) + new Vector3(0, 0, 5f);
 
+            //마우스 클릭 떄면 
             if (Input.GetMouseButtonUp(0))
+            {
                 mouseGem = false;
+            }
         }
 
 
