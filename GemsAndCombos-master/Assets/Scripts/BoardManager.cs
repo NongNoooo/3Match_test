@@ -129,7 +129,7 @@ namespace TBT.GemsAndCombos {
             board[x, y].color = randomColor;
         }
 
-        
+        //드랍 첫 생성 후 드랍을 아래로 움직이게 만듬
         private void SkyfallGems () 
         {
             for (int y = 0; y < 5; y++)
@@ -165,7 +165,7 @@ namespace TBT.GemsAndCombos {
             heldGemX = clickX;
             heldGemY = clickY;
 
-            //들고있는 드랍을 놨을때 매치될곳의 위치에 드랍의 클론을 만들어줌
+            //들고있는 드랍의 보드판 위치에 클론을 생성함
             CreateNewGemClone(clickX, clickY);
 
             //클론 드랍의 투명도 조절
@@ -177,8 +177,9 @@ namespace TBT.GemsAndCombos {
             gemClone.gemObject.transform.GetChild(0).GetComponent<MeshRenderer>().material.color = gemCol;
         }
 
-        //드랍 옮겨서 위치 바꾸기
-        private void CheckGemSwap () {
+        //드랍 이동시 드랍끼리의 위치 변경
+        private void CheckGemSwap () 
+        {
             int mouseX = Mathf.RoundToInt(mousePos.x);
             int mouseY = Mathf.RoundToInt(mousePos.y);
 
@@ -187,15 +188,15 @@ namespace TBT.GemsAndCombos {
             if (mouseX < 0) mouseX = 0;
             if (mouseY < 0) mouseY = 0;
 
-            if (mouseX != heldGemX || mouseY != heldGemY) {
-                if (mouseX - heldGemX > 1)
-                    mouseX = heldGemX + 1;
-                if (heldGemX - mouseX > 1)
-                    mouseX = heldGemX - 1;
-                if (mouseY - heldGemY > 1)
-                    mouseY = heldGemY + 1;
-                if (heldGemY - mouseY > 1)
-                    mouseY = heldGemY - 1;
+            //드랍을 클릭으로 들어올렸을때 위치랑 지금 마우스 위치가 다를경우
+            //클론 드랍의 위치를 해당 위치로 변경 
+            //helGemX,Y는 드랍 클릭시 해당 드랍의 xy값을 대입했던 값
+            if (mouseX != heldGemX || mouseY != heldGemY) 
+            {
+                if (mouseX - heldGemX > 1) mouseX = heldGemX + 1;
+                if (heldGemX - mouseX > 1) mouseX = heldGemX - 1;
+                if (mouseY - heldGemY > 1) mouseY = heldGemY + 1;
+                if (heldGemY - mouseY > 1) mouseY = heldGemY - 1;
 
                 StartCoroutine(SwapGems(mouseX, mouseY));
             }
@@ -254,7 +255,9 @@ namespace TBT.GemsAndCombos {
         }
 
         //드랍 클론 생성
-        private void CreateNewGemClone (int cloneX, int cloneY) {
+        private void CreateNewGemClone (int cloneX, int cloneY) 
+        {
+            //받아온 X,Y값을 이용해 위치를 지정
             GameObject gem = Instantiate(Resources.Load("Gem") as GameObject, new Vector2(cloneX, cloneY), Quaternion.identity);
             gemClone = new Gem 
             {
@@ -262,7 +265,7 @@ namespace TBT.GemsAndCombos {
                 gemObject = gem,
                 GM = gem.GetComponent<GemHandler>()
             };
-    }
+        }
 
         private IEnumerator MatchGems () {
             bool matchMade = false;
