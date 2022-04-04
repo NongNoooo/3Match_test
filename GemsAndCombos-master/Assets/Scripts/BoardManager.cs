@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 namespace TBT.GemsAndCombos {
-
     public class BoardManager : MonoBehaviour 
     {
         //드랍 위치값 오브젝트 스크립트 저장
@@ -102,7 +102,7 @@ namespace TBT.GemsAndCombos {
         //드랍 색 설정
         private void SetColor (int x, int y)
         {
-            int randomColor = Random.Range(0, 6);
+            int randomColor = UnityEngine.Random.Range(0, 6);
 
             switch (randomColor) 
             {
@@ -156,12 +156,17 @@ namespace TBT.GemsAndCombos {
             clickX = Mathf.RoundToInt(mousePos.x);
             clickY = Mathf.RoundToInt(mousePos.y);
 
+            .//델리게이트 하나 만들어서 수정해보기
+            //https://sosal.kr/644 참고
             if (clickX > 5) clickX = 5;
             if (clickY > 4) clickY = 4;
             if (clickX < 0) clickX = 0;
             if (clickY < 0) clickY = 0;
 
-            board[clickX, clickY].GM.mouseGem = true;
+            //람다식으로 바꿔보기
+            //액션, 람다식을 사용한 무기명 함수
+            Action mouseGemBoolChagner = () => board[clickX, clickY].GM.mouseGem = true;
+            //board[clickX, clickY].GM.mouseGem = true;
             heldGemX = clickX;
             heldGemY = clickY;
 
@@ -183,6 +188,8 @@ namespace TBT.GemsAndCombos {
             int mouseX = Mathf.RoundToInt(mousePos.x);
             int mouseY = Mathf.RoundToInt(mousePos.y);
 
+            //델리게이트 하나 만들어서 수정해보기
+            //https://sosal.kr/644 참고
             if (mouseX > 5) mouseX = 5;
             if (mouseY > 4) mouseY = 4;
             if (mouseX < 0) mouseX = 0;
