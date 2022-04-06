@@ -146,31 +146,41 @@ namespace TBT.GemsAndCombos {
             }
         }
 
-        public int clickX;
-        public int clickY;
+        //CheckGemClick, CheckGemSwap에서 사용
+        delegate void setXY(int a, int b);
+        Action mouseGemBoolChagner;
 
         //마우스 클릭으로 드랍 들기
         private void CheckGemClick () 
         {
-            //RoundToint 값을 반올림해 int로 대입
-            clickX = Mathf.RoundToInt(mousePos.x);
-            clickY = Mathf.RoundToInt(mousePos.y);
+            ////마우스 클릭시의 마우스 위치값을
+            //RoundToint을 사용해 반올림하여 대입
+            int clickX = Mathf.RoundToInt(mousePos.x);
+            int clickY = Mathf.RoundToInt(mousePos.y);
 
-            .//델리게이트 하나 만들어서 수정해보기
-            //https://sosal.kr/644 참고
-            if (clickX > 5) clickX = 5;
-            if (clickY > 4) clickY = 4;
-            if (clickX < 0) clickX = 0;
-            if (clickY < 0) clickY = 0;
+            //델리게이트 setXY에 무명함수를 람다식으로 대입
+            //위에서 반올림해 대입한 값이 보드의 최대 최소값보다 크거나 작을경우 최대 최소값으로 고정
+            setXY clickXY = (x, y) =>
+            {
+                if (x > 5) x = 5;
+                if (y > 4) y = 4;
+                if (x < 0) x = 0;
+                if (y < 0) y = 0;
+            };
 
-            //람다식으로 바꿔보기
-            //액션, 람다식을 사용한 무기명 함수
-            Action mouseGemBoolChagner = () => board[clickX, clickY].GM.mouseGem = true;
-            //board[clickX, clickY].GM.mouseGem = true;
+            clickXY(clickX, clickY);
+
+
+            //클릭한 위치에 있는 드랍의 bool값 mouseGem을 true로 바꿔 마우스를 따라다니게 만듬
+            mouseGemBoolChagner = () => board[clickX, clickY].GM.mouseGem = true;
+            mouseGemBoolChagner();
+
+            //아래의 CheckGemSwap에서 드랍 스왑시 사용할
+            //마우스를 클릭해 드랍을 들어올린 위치값을 대입
             heldGemX = clickX;
             heldGemY = clickY;
 
-            //들고있는 드랍의 보드판 위치에 클론을 생성함
+            //들고있는 드랍이 보드에 위치하게될곳을 표시하기위해 클론을 생성함
             CreateNewGemClone(clickX, clickY);
 
             //클론 드랍의 투명도 조절
@@ -182,22 +192,32 @@ namespace TBT.GemsAndCombos {
             gemClone.gemObject.transform.GetChild(0).GetComponent<MeshRenderer>().material.color = gemCol;
         }
 
-        //드랍 이동시 드랍끼리의 위치 변경
+        delegate void mouseXY(int a, int b);
+        //들고있는 드랍 이동시 드랍끼리의 위치 변경
         private void CheckGemSwap () 
         {
+            //Roundtoint로 반올림 후 대입
             int mouseX = Mathf.RoundToInt(mousePos.x);
             int mouseY = Mathf.RoundToInt(mousePos.y);
 
-            //델리게이트 하나 만들어서 수정해보기
-            //https://sosal.kr/644 참고
+            //반올림한 값이 보드의 최대 최소값보다 크거나 작을 경우 최대 최소값으로 고정
+            /*mouseXY clickXY = (x, y) =>
+            {
+                if (x > 5) x = 5;
+                if (y > 4) y = 4;
+                if (x < 0) x = 0;
+                if (y < 0) y = 0;
+            };
+
+            clickXY(mouseX, mouseY);*/
+
             if (mouseX > 5) mouseX = 5;
             if (mouseY > 4) mouseY = 4;
             if (mouseX < 0) mouseX = 0;
             if (mouseY < 0) mouseY = 0;
 
-            //드랍을 클릭으로 들어올렸을때 위치랑 지금 마우스 위치가 다를경우
-            //클론 드랍의 위치를 해당 위치로 변경 
-            //helGemX,Y는 드랍 클릭시 해당 드랍의 xy값을 대입했던 값
+            //위 CheckGemClick에서 대입받은 드랍을 클릭했던 위치와 현재 마우스의 위치가 다를 경우
+            //코루틴을 통해 클론드랍의 위치를 해당 위치로 이동
             if (mouseX != heldGemX || mouseY != heldGemY) 
             {
                 if (mouseX - heldGemX > 1) mouseX = heldGemX + 1;
@@ -205,32 +225,37 @@ namespace TBT.GemsAndCombos {
                 if (mouseY - heldGemY > 1) mouseY = heldGemY + 1;
                 if (heldGemY - mouseY > 1) mouseY = heldGemY - 1;
 
+                
                 StartCoroutine(SwapGems(mouseX, mouseY));
             }
         }
 
-        private IEnumerator SwapGems (int newGemX, int newGemY) {
+        private IEnumerator SwapGems (int newGemX, int newGemY) 
+        {
             Vector3 targetAngle;
             GameObject gemSwapper = new GameObject();
             WaitForSeconds swapLoopTimer = new WaitForSeconds(0.01f);
             float swapLerpPercent = 0f;
+            //드랍을 클릭했던 위치값(현제 플레이어가 들고있는 드랍의 위치값)을 oldGemXY에 대입
             int oldGemX = heldGemX, oldGemY = heldGemY;
-
+            //heldGemXY에는 newGemXY(위에서 heldGemXY에서 1을 더하고 뺀) 이동한 위치에 있는 드랍의 위치값
             heldGemX = newGemX; heldGemY = newGemY;
 
             Gem tempGem = board[newGemX, newGemY];
             board[newGemX, newGemY] = board[oldGemX, oldGemY];
             board[oldGemX, oldGemY] = tempGem;
 
+            //클론 드랍의 위치를 현재 마우스의 위치로
             if (gemClone.gemObject.transform.parent != null) {
                 gemClone.gemObject.transform.parent = null;
                 gemClone.gemObject.transform.position = new Vector2(oldGemX, oldGemY);
             }
 
-            if (board[oldGemX, oldGemY].gemObject.transform.parent != null) {
+            //
+           /* if (board[oldGemX, oldGemY].gemObject.transform.parent != null) {
                 board[oldGemX, oldGemY].gemObject.transform.parent = null;
                 board[oldGemX, oldGemY].gemObject.transform.position = new Vector2(newGemX, newGemY);
-            }
+            }*/
 
             targetAngle = new Vector3(0, 0, 180f);
             gemSwapper.transform.position = new Vector2(oldGemX - ((oldGemX - newGemX) / 2f), oldGemY - ((oldGemY - newGemY) / 2f));
@@ -254,8 +279,13 @@ namespace TBT.GemsAndCombos {
             Destroy(gemSwapper);
         }
 
-        private void DropGem () {
-            board[heldGemX, heldGemY].GM.mouseGem = false;
+        //마우스 클릭을 중지하면 작동
+        private void DropGem () 
+        {
+            //들고있는 드랍의 mouseGen을 false로 변경해 마우스를 더 이상 따라다니지 않게 만듬
+            mouseGemBoolChagner = () => board[heldGemX, heldGemY].GM.mouseGem = false;
+            mouseGemBoolChagner();
+
             board[heldGemX, heldGemY].gemObject.transform.position = new Vector2(heldGemX, heldGemY);
             if (gemClone.gemObject != null)
                 Destroy(gemClone.gemObject);
