@@ -278,9 +278,12 @@ namespace TBT.GemsAndCombos {
             //genSwapper를 부모로 지정했던것 해제
             if (board[oldGemX, oldGemY].gemObject.transform.parent == gemSwapper.transform)
                 board[oldGemX, oldGemY].gemObject.transform.parent = null;
+
             if (gemClone.gemObject != null)
+            {
                 if (gemClone.gemObject.transform.parent == gemSwapper.transform)
                     gemClone.gemObject.transform.parent = null;
+            }
 
             //gemSwapper 제거
             Destroy(gemSwapper);
@@ -294,8 +297,8 @@ namespace TBT.GemsAndCombos {
             mouseGemBoolChagner();
 
             board[heldGemX, heldGemY].gemObject.transform.position = new Vector2(heldGemX, heldGemY);
-            if (gemClone.gemObject != null)
-                Destroy(gemClone.gemObject);
+
+            if (gemClone.gemObject != null) Destroy(gemClone.gemObject);
         }
 
         //드랍 클론 생성
@@ -311,57 +314,88 @@ namespace TBT.GemsAndCombos {
             };
         }
 
-        private IEnumerator MatchGems () {
+        //드랍 매치 확인
+        private IEnumerator MatchGems () 
+        {
             bool matchMade = false;
             int matchCount = 0, oldMatchCount = 0;
 
             // Slight beginning delay
             yield return new WaitForSeconds(0.5f);
             
-            for (int y = 0; y < 5; y++) {
-                for (int x = 0; x < 6; x++) {
+            //반복문으로 보드 크기 만큼 반복문 돌림
+            for (int y = 0; y < 5; y++) 
+            {
+                for (int x = 0; x < 6; x++) 
+                {
+                    //SetColor에서 랜덤으로 지정된 컬러의 int값을 가져옴
                     int currentColor = board[x, y].color;
+                    //마지막에 
                     int oldMatchFound = 0;
 
-                    // Checking for matches to the right
-                    if (x < 4) {
+                    //오른쪽으로 드랍매치 확인
+                    if (x < 4) 
+                    {
                         int z = 1;
                         
-                        while (x + z < 6) {
-                            if (board[x + z, y].color == currentColor) {
+                        while (x + z < 6) 
+                        {
+                            //드랍의 위치에서 x축으로 1을 더한 값의 색이 자신과 같은지 확인
+                            if (board[x + z, y].color == currentColor) 
+                            {
+                                //드랍의 매치 넘버가 0보다 크고
+                                //올드매치파운드가 0이거나 매치넘버보다 크면
                                 if (board[x + z, y].matchNumber > 0 && (oldMatchFound > board[x + z, y].matchNumber || oldMatchFound == 0))
+                                    //올드매치 파운드에 드랍의 매치넘버를 대입
                                     oldMatchFound = board[x + z, y].matchNumber;
+
+                                //z값을 올려 오른쪽으로 계속해서 확인
                                 z++;
                             } else break;
                         }
-
-                        if (z > 2) {
+                        //옆옆 드랍까지 색이 같아 z값이 올라 3이상일때 작동
+                        if (z > 2) 
+                        {
+                            //matchMode를 true로 바꿔 드랍이 클리어 될수있게 됨
                             matchMade = true;
+
+                            //매치카운트가 올드매치 카운트랑 같으면 매치카운트 값 증가 
                             if (matchCount == oldMatchCount) matchCount++;
-                            for (int i = 0; i < z; i++) {
-                                if (oldMatchFound > 0)
-                                    board[x + i, y].matchNumber = oldMatchFound;
+
+                            for (int i = 0; i < z; i++) 
+                            {
+                                //올드매치파운드가 0보다 크면
+                                //드랍의 매치넘버에 올드매치파운드를 대입
+                                if (oldMatchFound > 0) board[x + i, y].matchNumber = oldMatchFound;
+                                //증가된 매치 카운트를 드랍의 matchNumber에 대입
                                 else board[x + i, y].matchNumber = matchCount;
                             }
                         }
                     }
 
-                    // Checking for matches to the left
-                    if (x > 1) {
+                    // 왼쪽으로 드랍 매치 확인
+                    if (x > 1) 
+                    {
                         int z = 1;
 
-                        while (x - z > -1) {
-                            if (board[x - z, y].color == currentColor) {
+                        while (x - z > -1) 
+                        {
+                            if (board[x - z, y].color == currentColor) 
+                            {
                                 if (board[x - z, y].matchNumber > 0 && (oldMatchFound > board[x - z, y].matchNumber || oldMatchFound == 0))
                                     oldMatchFound = board[x - z, y].matchNumber;
+
                                 z++;
                             } else break;
                         }
 
-                        if (z > 2) {
+                        if (z > 2) 
+                        {
                             matchMade = true;
                             if (matchCount == oldMatchCount) matchCount++;
-                            for (int i = 0; i < z; i++) {
+
+                            for (int i = 0; i < z; i++) 
+                            {
                                 if (oldMatchFound > 0)
                                     board[x - i, y].matchNumber = oldMatchFound;
                                 else board[x - i, y].matchNumber = matchCount;
@@ -369,22 +403,30 @@ namespace TBT.GemsAndCombos {
                         }
                     }
 
-                    // Checking for matches up above
-                    if (y < 3) {
+                    // 위로 드랍 매치 확인
+                    if (y < 3) 
+                    {
                         int z = 1;
 
-                        while (y + z < 5) {
-                            if (board[x, y + z].color == currentColor) {
+                        while (y + z < 5) 
+                        {
+                            if (board[x, y + z].color == currentColor) 
+                            {
                                 if (board[x, y + z].matchNumber > 0 && (oldMatchFound > board[x, y + z].matchNumber || oldMatchFound == 0))
                                     oldMatchFound = board[x, y + z].matchNumber;
+
                                 z++;
                             } else break;
                         }
 
-                        if (z > 2) {
+                        if (z > 2) 
+                        {
                             matchMade = true;
+
                             if (matchCount == oldMatchCount) matchCount++;
-                            for (int i = 0; i < z; i++) {
+
+                            for (int i = 0; i < z; i++) 
+                            {
                                 if (oldMatchFound > 0)
                                     board[x, y + i].matchNumber = oldMatchFound;
                                 else board[x, y + i].matchNumber = matchCount;
@@ -392,40 +434,56 @@ namespace TBT.GemsAndCombos {
                         }
                     }
 
-                    // Checking for matches down below
-                    if (y > 1) {
+                    // 아래로 드랍매치 확인
+                    if (y > 1) 
+                    {
                         int z = 1;
 
-                        while (y - z > -1) {
-                            if (board[x, y - z].color == currentColor) {
+                        while (y - z > -1) 
+                        {
+                            if (board[x, y - z].color == currentColor) 
+                            {
                                 if (board[x, y - z].matchNumber > 0 && (oldMatchFound > board[x, y - z].matchNumber || oldMatchFound == 0))
                                     oldMatchFound = board[x, y - z].matchNumber;
+
                                 z++;
                             } else break;
                         }
 
-                        if (z > 2) {
+                        if (z > 2) 
+                        {
                             matchMade = true;
+
                             if (matchCount == oldMatchCount) matchCount++;
-                            for (int i = 0; i < z; i++) {
+
+                            for (int i = 0; i < z; i++) 
+                            {
                                 if (oldMatchFound > 0)
                                     board[x, y - i].matchNumber = oldMatchFound;
+
                                 else board[x, y - i].matchNumber = matchCount;
                             }
                         }
                     }
-
+                    //올드매치카운트에 매치카운트의 값을 대입
                     oldMatchCount = matchCount;
                 }
             }
 
-            // Remove all currently matched gems, I'm going to do it a janky way
-            if (matchMade) {
-                for (int zz = 1; zz <= matchCount; zz++) {
-                    for (int yy = 0; yy < 5; yy++) {
-                        for (int xx = 0; xx < 6; xx++) {
+            // 매치된 드랍 제거
+            if (matchMade) 
+            {
+                //매치 카운트만큼 반복
+                for (int zz = 1; zz <= matchCount; zz++) 
+                {
+                    //보드를 쭉 훑어서
+                    for (int yy = 0; yy < 5; yy++) 
+                    {
+                        for (int xx = 0; xx < 6; xx++) 
+                        {
+                            //드랍의 매치넘버가 zz값과 같다면 드랍 제거
                             if (board[xx, yy].matchNumber == zz) 
-                                DestroyObject(board[xx, yy].gemObject);
+                                Destroy(board[xx, yy].gemObject);
                         }
                     }
 
@@ -434,24 +492,32 @@ namespace TBT.GemsAndCombos {
             
                 DropRemainingGems();
                 DropNewGems();
-            } else {
+            } 
+            else 
+            {
                 yield return new WaitForSeconds(0.25f);
                 boardLocked = false;
             }
         }
 
-        private void DropRemainingGems () {
-            for (int y = 1; y < 5; y++) {
-                for (int x = 0; x < 6; x++) {
+        private void DropRemainingGems () 
+        {
+            for (int y = 1; y < 5; y++) 
+            {
+                for (int x = 0; x < 6; x++) 
+                {
                     if (board[x, y].matchNumber > 0) continue;
 
                     int dropGem = 0;
-                    for (int i = 1; i <= y; i++) {
+
+                    for (int i = 1; i <= y; i++) 
+                    {
                         if (board[x, y - i].matchNumber > 0)
                             dropGem++;
                     }
 
-                    if (dropGem > 0) {
+                    if (dropGem > 0) 
+                    {
                         board[x, y].dropDistance = dropGem;
 
                         Gem tempGem = board[x, y - dropGem];
@@ -462,10 +528,14 @@ namespace TBT.GemsAndCombos {
             }
         }
 
-        private void DropNewGems () {
-            for (int y = 4; y >= 0; y--) {
-                for (int x = 0; x < 6; x++) {
-                    if (board[x, y].matchNumber > 0) {
+        private void DropNewGems () 
+        {
+            for (int y = 4; y >= 0; y--) 
+            {
+                for (int x = 0; x < 6; x++) 
+                {
+                    if (board[x, y].matchNumber > 0) 
+                    {
                         SpawnGem(x, y, 5);
                     }
                 }
