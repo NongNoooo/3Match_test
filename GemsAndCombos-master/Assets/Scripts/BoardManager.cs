@@ -233,35 +233,40 @@ namespace TBT.GemsAndCombos {
         private IEnumerator SwapGems (int newGemX, int newGemY) 
         {
             Vector3 targetAngle;
+            //드랍 스왑 애니메이션을 재생할때 사용할 오브젝트
             GameObject gemSwapper = new GameObject();
             WaitForSeconds swapLoopTimer = new WaitForSeconds(0.01f);
             float swapLerpPercent = 0f;
-            //드랍을 클릭했던 위치값(현제 플레이어가 들고있는 드랍의 위치값)을 oldGemXY에 대입
+
+            //스왑된 2개의 드랍 위치값 변경
+            //드랍을 클릭했던 위치값(현제 플레이어가 들고있는 드랍의 보드 위치값)을 oldGemXY에 대입
             int oldGemX = heldGemX, oldGemY = heldGemY;
             //heldGemXY에는 newGemXY(위에서 heldGemXY에서 1을 더하고 뺀) 이동한 위치에 있는 드랍의 위치값
             heldGemX = newGemX; heldGemY = newGemY;
-
             Gem tempGem = board[newGemX, newGemY];
             board[newGemX, newGemY] = board[oldGemX, oldGemY];
             board[oldGemX, oldGemY] = tempGem;
 
-            //클론 드랍의 위치를 현재 마우스의 위치로
-            if (gemClone.gemObject.transform.parent != null) {
+
+            //드랍의 포지션을 위에서 변경된 위치값에 맞게 변경
+            if (gemClone.gemObject.transform.parent != null) 
+            {
                 gemClone.gemObject.transform.parent = null;
                 gemClone.gemObject.transform.position = new Vector2(oldGemX, oldGemY);
             }
-
-            //
-           /* if (board[oldGemX, oldGemY].gemObject.transform.parent != null) {
+            if (board[oldGemX, oldGemY].gemObject.transform.parent != null)
+            {
                 board[oldGemX, oldGemY].gemObject.transform.parent = null;
                 board[oldGemX, oldGemY].gemObject.transform.position = new Vector2(newGemX, newGemY);
-            }*/
+            }
+
 
             targetAngle = new Vector3(0, 0, 180f);
+            //두 드랍 사이의 중심
             gemSwapper.transform.position = new Vector2(oldGemX - ((oldGemX - newGemX) / 2f), oldGemY - ((oldGemY - newGemY) / 2f));
-
+            //위에서 구한 두 드랍사이의 중심에 있는 오브젝트를 부모로 지정
             gemClone.gemObject.transform.parent = board[oldGemX, oldGemY].gemObject.transform.parent = gemSwapper.transform;
-
+            //gemSwapper를 회전시켜 드랍스왑 애니메이션을 보여줌
             while (swapLerpPercent <= 1f) {
                 gemSwapper.transform.eulerAngles = Vector3.Lerp(Vector3.zero, targetAngle, swapLerpPercent);
                 swapLerpPercent += 0.1f;
@@ -270,12 +275,14 @@ namespace TBT.GemsAndCombos {
 
             gemSwapper.transform.eulerAngles = targetAngle;
 
+            //genSwapper를 부모로 지정했던것 해제
             if (board[oldGemX, oldGemY].gemObject.transform.parent == gemSwapper.transform)
                 board[oldGemX, oldGemY].gemObject.transform.parent = null;
             if (gemClone.gemObject != null)
                 if (gemClone.gemObject.transform.parent == gemSwapper.transform)
                     gemClone.gemObject.transform.parent = null;
 
+            //gemSwapper 제거
             Destroy(gemSwapper);
         }
 
