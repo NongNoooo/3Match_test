@@ -346,12 +346,16 @@ namespace TBT.GemsAndCombos {
                                 //드랍의 매치 넘버가 0보다 크고
                                 //올드매치파운드가 0이거나 매치넘버보다 크면
                                 if (board[x + z, y].matchNumber > 0 && (oldMatchFound > board[x + z, y].matchNumber || oldMatchFound == 0))
+                                {
                                     //올드매치 파운드에 드랍의 매치넘버를 대입
                                     oldMatchFound = board[x + z, y].matchNumber;
+                                }
 
                                 //z값을 올려 오른쪽으로 계속해서 확인
                                 z++;
-                            } else break;
+
+                            }
+                            else break;
                         }
                         //옆옆 드랍까지 색이 같아 z값이 올라 3이상일때 작동
                         if (z > 2) 
@@ -499,13 +503,15 @@ namespace TBT.GemsAndCombos {
                 boardLocked = false;
             }
         }
-
+        //드랍 클리어후 남은 드랍 아래로 내리는 기능
         private void DropRemainingGems () 
         {
+            //y가 0인건 아래로 내려올 필요없어서 1부터 반복문 시작
             for (int y = 1; y < 5; y++) 
             {
                 for (int x = 0; x < 6; x++) 
                 {
+
                     if (board[x, y].matchNumber > 0) continue;
 
                     int dropGem = 0;
