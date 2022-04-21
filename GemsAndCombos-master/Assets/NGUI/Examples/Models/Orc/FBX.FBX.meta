@@ -185,7 +185,7 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Orc
-    second: {fileID: 2100000, guid: 83db35c09b0d78a4b8be7a49ba0cbd06, type: 2}
+    second: {fileID: 2100000, guid: 9e4ef8853454afc4498bf7a01c60e908, type: 2}
   materials:
     importMaterials: 1
     materialName: 0
